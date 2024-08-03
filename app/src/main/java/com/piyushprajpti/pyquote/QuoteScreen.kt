@@ -38,7 +38,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -84,6 +88,14 @@ fun QuoteScreen(
     }
 
     val coroutineScope = rememberCoroutineScope()
+    val graphicsLayer = rememberGraphicsLayer()
+
+//    ShareImagePrototype(
+//        quoteData = quoteData,
+//        backColor = backColor,
+//        textColor = textColor,
+//        graphicsLayer = graphicsLayer
+//    )
 
     fun onSaveClick() {
         coroutineScope.launch(Dispatchers.IO) {
@@ -115,19 +127,12 @@ fun QuoteScreen(
 
     fun shareAsImage() {
 
-        val composeView = ComposeView(localContext).apply {
-            setContent {
-                ShareImagePrototype(
-                    quoteData = quoteData,
-                    backColor = backColor,
-                    textColor = textColor
-                )
-            }
+        coroutineScope.launch {
+            val bitmap = graphicsLayer.toImageBitmap()
+
+            shareImage(bitmap = bitmap.asAndroidBitmap(), context = localContext)
         }
 
-        val bitmap = captureBitmapFromComposeView(composeView)
-
-        shareImage(bitmap = bitmap, context = localContext)
     }
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -164,14 +169,21 @@ fun QuoteScreen(
 
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(20.dp),
+                    .fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceAround
             ) {
 
                 Column(
                     modifier = Modifier
+                        .drawWithContent {
+                            graphicsLayer.record {
+                                this@drawWithContent.drawContent()
+                            }
+                            drawLayer(graphicsLayer)
+                        }
                         .fillMaxWidth()
+                        .background(backColor)
+                        .padding(20.dp)
                 ) {
                     Text(
                         text = quoteData.content,
@@ -193,7 +205,7 @@ fun QuoteScreen(
                 }
 
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(20.dp),
                 ) {
                     TextButton(
                         onClick = {
@@ -223,7 +235,6 @@ fun QuoteScreen(
 
                     TextButton(
                         onClick = {
-                            Log.d("TAG", "QuoteScreen: here")
                             showShareDialogBox.value = true
                         },
                         modifier = Modifier

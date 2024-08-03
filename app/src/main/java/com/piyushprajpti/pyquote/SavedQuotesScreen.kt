@@ -22,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Dispatchers
@@ -50,31 +51,56 @@ fun SavedQuotesScreen(db: QuoteDatabase, onBackClick: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-//        Row(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .background(Color(0xFF618985))
-//                .padding(start = 8.dp, top = 25.dp, end = 8.dp, bottom = 8.dp),
-//            verticalAlignment = Alignment.CenterVertically
-//        ) {
-//            IconButton(onClick = { onBackClick() }) {
-//                Icon(
-//                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-//                    contentDescription = "back",
-//                    modifier = Modifier.size(25.dp)
-//                )
-//            }
-//
-//            Text(text = "Saved Quotes (${quotesList.value.size})", fontSize = 20.sp)
-//        }
+        if (quotesList.value.isEmpty()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFF808690)),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color(0x1E000000))
+                        .padding(start = 8.dp, top = 30.dp, end = 8.dp, bottom = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = { onBackClick() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "back",
+                            modifier = Modifier.size(28.dp),
+                            tint = Color.White
+                        )
+                    }
 
-        VerticalPager(state = pagerState) {
-            QuoteScreen(
-                quoteData = quotesList.value[it],
-                db = db,
-                savedQuoteListSize = quotesList.value.size,
-                onBackClick = onBackClick
-            )
+                    Text(
+                        text = "Saved Quotes (0)",
+                        fontSize = 22.sp,
+                        color = Color.White
+                    )
+                }
+
+                Text(
+                    text = "No saved quotes found",
+                    color = Color.White,
+                    fontSize = 40.sp,
+                    lineHeight = 50.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(start = 20.dp, top = 250.dp, end = 20.dp)
+                )
+            }
+        } else {
+            VerticalPager(state = pagerState) {
+                QuoteScreen(
+                    quoteData = quotesList.value[it],
+                    db = db,
+                    savedQuoteListSize = quotesList.value.size,
+                    onBackClick = onBackClick
+                )
+            }
         }
     }
 }
