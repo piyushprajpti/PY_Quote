@@ -73,6 +73,7 @@ fun MainFeed(
 //                }
 
                 quoteDao.insertQuotes(quotesList)
+                quoteList.value = quoteDao.getAllQuotesList().shuffled()
             } else {
                 quoteList.value = dbQuotes.shuffled()
             }
